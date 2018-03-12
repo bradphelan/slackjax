@@ -1,3 +1,5 @@
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,12 +9,26 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfMath.Controls;
+using Brushes = System.Windows.Media.Brushes;
+using Size = System.Windows.Size;
 
 namespace Renderer
 {
     public static class Renderer
     {
         private static readonly StaTaskScheduler _StaTaskScheduler = new StaTaskScheduler( 1 );
+
+        public static Bitmap Convert( RenderTargetBitmap inmap )
+        {
+            MemoryStream stream = new MemoryStream();
+            BitmapEncoder encoder = new BmpBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(inmap));
+            encoder.Save(stream);
+
+            Bitmap bitmap = new Bitmap(stream);
+            return bitmap;
+        }
+
         public static async Task<string> GenerateImage(string formula)
         {
             string Build()
@@ -31,15 +47,9 @@ namespace Renderer
 
                 bmp.Render(control);
 
-                var encoder = new PngBitmapEncoder();
-
-                encoder.Frames.Add(BitmapFrame.Create(bmp));
-
+                var image = ImageCrop.AutoCrop( Convert( bmp ) );
                 var file = @"test.png";
-
-                using (Stream stm = File.Create(file))
-                    encoder.Save(stm);
-
+                image.Save( file,ImageFormat.Png );
                 return file;
 
             }
