@@ -11,7 +11,8 @@ namespace Renderer
         static void Main(string[] args)
         {
             var t = new TaskCompletionSource<bool>();
-            SlackJax.Program.Main( Renderer.GenerateImage );
+            //SlackJax.Program.RenderToFile( Renderer.GenerateImage );
+            SlackJax.Program.RenderToUri( QuickLatex.Render);
 
             t.Task.Wait();
 
